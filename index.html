@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f4efe6">
+  <title>Für Linda</title>
+  <link rel="icon" type="image/png" href="media/icon-180.png">
+  <link rel="apple-touch-icon" href="media/icon-180.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="scene" data-state="idle">
+    <h1 class="greeting" lang="en">Happy Birthday!</h1>
+
+    <div class="artwork">
+      <div class="stage">
+        <video
+          class="stage__video"
+          src="media/animation.mp4"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          disablepictureinpicture
+          disableremoteplayback
+          x-webkit-airplay="deny"
+          aria-label="Animation: Der Boston Terrier vor den Bergen bekommt eine Sprechblase."
+        ></video>
+        <img
+          class="stage__image"
+          src="media/bild-1440.jpg"
+          srcset="media/bild-960.jpg 960w, media/bild-1440.jpg 1440w, media/bild-1920.jpg 1920w"
+          sizes="(min-width: 1180px) 1100px, 92vw"
+          width="1920"
+          height="1344"
+          alt="Gezeichneter Boston Terrier mit braunem Geschirr, der vor zwei Berggipfeln und einem See sitzt."
+          fetchpriority="high"
+        >
+        <div class="frost" aria-hidden="true">
+          <p class="frost__line frost__line--honey">HONEY?</p>
+          <p class="frost__line frost__line--suit">WHERE IS MY SUPER SUIT?!</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="control control--play" type="button" hidden>
+        <span class="control__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M9 7.2v9.6a.6.6 0 0 0 .9.5l7.6-4.8a.6.6 0 0 0 0-1L9.9 6.7a.6.6 0 0 0-.9.5Z"/></svg>
+        </span>
+        <span class="control__label">Abspielen</span>
+      </button>
+      <button class="control control--replay" type="button" hidden>
+        <span class="control__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6L3.5 8.5"/><path d="M3.5 3.5v5h5"/></svg>
+        </span>
+        <span class="control__label">Nochmal … aber kälter ❄️</span>
+      </button>
+    </div>
+  </main>
+</body>
+</html>

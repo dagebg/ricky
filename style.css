@@ -1,0 +1,481 @@
+/* Geschenkseite – mobile first.
+   Farben: warmes Cremeweiß, Salbeigrün, staubiges Blau, Anthrazit. */
+
+:root {
+  --cream: #f4efe6;
+  --cream-deep: #ebe4d7;
+  --paper: #fbf9f4;
+  --sage: #8ea38a;
+  --sage-deep: #61785f;
+  --blue: #8ea5b4;
+  --blue-deep: #5b7586;
+  --ink: #2c2f32;
+  --ink-soft: rgba(44, 47, 50, 0.72);
+  --line: rgba(44, 47, 50, 0.14);
+
+  /* Seitenverhältnis des Bildes (3543 × 2480) */
+  --ratio: 1.4286;
+  --pad: clamp(16px, 4.5vw, 48px);
+  --gap: clamp(18px, 3.2vh, 32px);
+  --mat: clamp(6px, 1.6vw, 16px);
+  --controls-h: 52px;
+  --max-art: 1100px;
+  --vh: 1vh;
+  --title-size: clamp(1.25rem, 1rem + 1.2vw, 1.75rem);
+  --title-h: calc(var(--title-size) * 1.2);
+  /* Summe der Innenabstände inkl. Notch/Home-Indikator */
+  --pad-y: calc(max(var(--pad), env(safe-area-inset-top, 0px)) + max(var(--pad), env(safe-area-inset-bottom, 0px)));
+  --pad-x: calc(max(var(--pad), env(safe-area-inset-left, 0px)) + max(var(--pad), env(safe-area-inset-right, 0px)));
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+}
+
+@supports (height: 1svh) {
+  :root { --vh: 1svh; }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--cream);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: calc(100 * var(--vh));
+  color: var(--ink);
+  font-family: var(--serif);
+  background:
+    radial-gradient(120% 70% at 50% 0%, var(--paper) 0%, rgba(251, 249, 244, 0) 70%),
+    linear-gradient(180deg, var(--cream) 0%, var(--cream-deep) 100%);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Layout ---------- */
+
+.scene {
+  min-height: 100vh;
+  min-height: calc(100 * var(--vh));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  padding:
+    max(var(--pad), env(safe-area-inset-top))
+    max(var(--pad), env(safe-area-inset-right))
+    max(var(--pad), env(safe-area-inset-bottom))
+    max(var(--pad), env(safe-area-inset-left));
+}
+
+.greeting {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--title-size);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: var(--ink);
+}
+
+/* Passepartout: das Bild liegt wie ein Druck auf Papier. */
+.artwork {
+  width: min(
+    100%,
+    var(--max-art),
+    calc((100 * var(--vh) - var(--pad-y) - 2 * var(--gap) - var(--title-h) - var(--controls-h) - 2 * var(--mat)) * var(--ratio) + 2 * var(--mat))
+  );
+  padding: var(--mat);
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow:
+    0 0 0 1px rgba(44, 47, 50, 0.05),
+    0 1px 2px rgba(44, 47, 50, 0.06),
+    0 14px 32px -18px rgba(44, 47, 50, 0.38),
+    0 34px 80px -44px rgba(91, 117, 134, 0.45);
+}
+
+.stage {
+  position: relative;
+  aspect-ratio: 3543 / 2480;
+  overflow: hidden;
+  background: #e9dfcf;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@supports not (aspect-ratio: 1) {
+  .stage::before {
+    content: "";
+    display: block;
+    padding-top: 70%;
+  }
+}
+
+/* Bild und Video liegen exakt übereinander und werden nie beschnitten. */
+.stage__video,
+.stage__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border: 0;
+}
+
+.stage__video {
+  z-index: 0;
+  background: transparent;
+}
+
+.stage__image {
+  z-index: 1;
+  opacity: 1;
+}
+
+/* Sobald das erste Videobild steht, verschwindet das Standbild darüber. */
+.scene.is-revealed .stage__image {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Fallback: natives Video mit Steuerung liegt obenauf. */
+.scene[data-state="fallback"] .stage__video {
+  z-index: 2;
+}
+
+.scene[data-state="idle"] .stage {
+  cursor: pointer;
+}
+
+/* ---------- Bedienelemente ---------- */
+
+.controls {
+  display: grid;
+  place-items: center;
+  min-height: var(--controls-h);
+}
+
+.control {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  margin: 0;
+  min-height: 44px;
+  padding: 0.4em 1.2em 0.4em 0.45em;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(251, 249, 244, 0.55);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  appearance: none;
+
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.control[hidden] {
+  display: none;
+}
+
+.scene[data-state="idle"] .control--play,
+.scene[data-state="paused"] .control--play,
+.scene[data-state="starting"]:not(.is-revealed) .control--play,
+.scene[data-state="ended"] .control--replay {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.control__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.1em;
+  height: 2.1em;
+  border-radius: 50%;
+}
+
+.control__icon svg {
+  width: 62%;
+  height: 62%;
+  display: block;
+}
+
+.control__label {
+  padding-bottom: 0.05em;
+}
+
+.control--play .control__icon {
+  background: var(--sage-deep);
+  color: var(--paper);
+}
+
+.control--play .control__icon svg {
+  fill: currentColor;
+  transform: translateX(4%);
+}
+
+.control--replay {
+  min-height: 40px;
+  padding: 0.35em 1em 0.35em 0.55em;
+  gap: 0.45em;
+  font-size: 0.9375rem;
+  color: var(--ink-soft);
+  background: transparent;
+}
+
+.control--replay .control__icon {
+  width: 1.7em;
+  height: 1.7em;
+  color: var(--blue-deep);
+}
+
+.control--replay .control__icon svg {
+  width: 72%;
+  height: 72%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (hover: hover) {
+  .control:hover {
+    background: var(--paper);
+    border-color: rgba(44, 47, 50, 0.24);
+  }
+}
+
+.control:focus {
+  outline: none;
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: 3px;
+}
+
+/* Ladezustand, falls der Start einen Moment dauert */
+.control[aria-busy="true"] .control__icon::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(97, 120, 95, 0.25);
+  border-top-color: var(--sage-deep);
+}
+
+/* ---------- Easter Egg „aber kälter“: Blaustich, Frost an den Rändern, Text ---------- */
+
+.stage {
+  container-type: inline-size;
+}
+
+.frost {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.scene[data-frost="honey"] .frost,
+.scene[data-frost="suit"] .frost {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* kühler Blaustich */
+.frost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(150, 192, 228, 0.26), rgba(170, 205, 235, 0.2));
+}
+
+/* Frost an den Rändern */
+.frost::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 2.4 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 72% 68% at 50% 50%, rgba(238, 246, 252, 0) 52%, rgba(238, 246, 252, 0.6) 84%, rgba(248, 252, 255, 0.92) 100%);
+  box-shadow: inset 0 0 14px 3px rgba(255, 255, 255, 0.7);
+  -webkit-mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 48%, #000 92%);
+  mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 48%, #000 92%);
+}
+
+.frost__line {
+  position: absolute;
+  top: 7%;
+  left: 4%;
+  right: 4%;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(0.8rem, 3.8vw, 1.9rem);
+  font-size: 4.4cqw;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #22323e;
+  text-shadow: 0 0 0.5em rgba(255, 255, 255, 0.95), 0 0 0.15em rgba(255, 255, 255, 0.9);
+  opacity: 0;
+}
+
+.scene[data-frost="honey"] .frost__line--honey,
+.scene[data-frost="suit"] .frost__line--suit {
+  opacity: 1;
+}
+
+/* ---------- Querformat auf kleinen Bildschirmen: Knopf neben das Bild ---------- */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  :root {
+    --pad: clamp(12px, 3vh, 24px);
+    --gap: clamp(12px, 3.2vh, 24px);
+    --controls-w: 10.5rem;
+    --title-size: 1.25rem;
+  }
+
+  /* Gruß über dem Bild, Knopf rechts daneben */
+  .scene {
+    display: grid;
+    grid-template-columns:
+      min(
+        100vw - var(--pad-x) - var(--controls-w) - var(--gap),
+        (100 * var(--vh) - var(--pad-y) - var(--title-h) - var(--gap) - 2 * var(--mat)) * var(--ratio) + 2 * var(--mat)
+      )
+      var(--controls-w);
+    grid-template-areas:
+      "title ."
+      "art   controls";
+    align-content: center;
+    justify-content: center;
+  }
+
+  .greeting {
+    grid-area: title;
+  }
+
+  .artwork {
+    grid-area: art;
+    width: auto;
+  }
+
+  .controls {
+    grid-area: controls;
+    min-height: 0;
+  }
+}
+
+/* ---------- Übergänge (nur ohne reduzierte Bewegung) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .greeting {
+    animation: fade-in 1s 0.2s ease-out both;
+  }
+
+  .artwork {
+    animation: settle 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .controls {
+    animation: fade-in 0.9s 0.45s ease-out both;
+  }
+
+  .stage__image {
+    transition: opacity 0.32s ease-out;
+  }
+
+  .control {
+    transition-property: opacity, visibility, background-color, border-color, transform;
+    transition-duration: 0.35s, 0s, 0.2s, 0.2s, 0.15s;
+    transition-delay: 0s, 0.35s, 0s, 0s, 0s;
+    transition-timing-function: ease;
+  }
+
+  .scene[data-state="idle"] .control--play,
+  .scene[data-state="paused"] .control--play,
+  .scene[data-state="starting"]:not(.is-revealed) .control--play {
+    transition-delay: 0s;
+  }
+
+  /* Die Sprechblase bekommt zuerst die Aufmerksamkeit. */
+  .scene[data-state="ended"] .control--replay {
+    transition-delay: 0.7s, 0.7s, 0s, 0s, 0s;
+  }
+
+  .control:active {
+    transform: scale(0.97);
+  }
+
+  .control[aria-busy="true"] .control__icon::after {
+    animation: spin 0.9s linear infinite;
+  }
+
+  /* Eis zieht von den Rändern herein und wieder hinaus. */
+  .frost {
+    transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+  }
+
+  .scene[data-frost="honey"] .frost,
+  .scene[data-frost="suit"] .frost {
+    transition-delay: 0s;
+  }
+
+  .frost::after {
+    transform: scale(1.14);
+    transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .scene[data-frost="honey"] .frost::after,
+  .scene[data-frost="suit"] .frost::after {
+    transform: none;
+  }
+
+  .frost__line {
+    transition: opacity 0.35s ease;
+  }
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
